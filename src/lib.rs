@@ -3,6 +3,7 @@ use serde::de::DeserializeOwned;
 use std::fs::File;
 use std::io::BufReader;
 use serde_json::Result as SResult;
+pub mod calc;
 
 #[derive(Deserialize, Debug)]
 pub struct Config {
@@ -10,7 +11,10 @@ pub struct Config {
     pub fppca_charge: f32,
     pub tax: f32,
     pub energy_unit: f32,
-    pub energy_rate: f32
+    pub energy_rate: f32,
+    pub dinesh_cr: f32,
+    pub sachin_cr: f32,
+    pub sankit_cr: f32
 }
 
 #[derive(Deserialize, Debug)]
@@ -18,6 +22,14 @@ pub struct Readings {
     pub dinesh_reading: f32,
     pub sachin_reading: f32,
     pub sankit_reading: f32
+}
+
+#[derive(Deserialize, Debug, PartialEq)]
+pub struct Bill {
+    pub dinesh_bill: f32,
+    pub sachin_bill: f32,
+    pub sankit_bill: f32,
+    pub kaniska_bill: f32
 }
 
 impl Config {
