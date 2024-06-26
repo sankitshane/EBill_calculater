@@ -3,6 +3,8 @@ use serde::de::DeserializeOwned;
 use std::fs::File;
 use std::io::BufReader;
 use serde_json::Result as SResult;
+use std::error::Error;
+use std::process;
 pub mod calc;
 
 #[derive(Deserialize, Debug)]
@@ -39,25 +41,36 @@ impl Config {
         }
 
         let file_path = args[1].clone();
-        let output = match read_config_from_file(file_path) {
-            Ok(config) => {
-                print_config(&config);
-                Ok(config)
+        let config = match read_config_from_file(file_path) {
+            Ok(output) => {
+                Ok(output)
             }
-            Err(e) => Err("Error reading json file"),
+            Err(_e) => Err("Error reading json file"),
         };
 
-        let current_path = "reading.json".to_string();
-        let current = match read_config_from_file(current_path) {
-            Ok(config) => {
-                print_reading(&config);
-                Ok(config)
-            }
-            Err(e) => Err("Error reading json file"),
-        };
-
-        output
+        config
     }
+}
+
+pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
+    let readings_file_path = "reading.json".to_string();
+    let readings = match read_config_from_file(readings_file_path) {
+        Ok(output) => {
+            Ok(output)
+        }
+        Err(_e) => Err("Error reading json file"),
+    };
+    
+    let readings = readings.unwrap_or_else(|err| {
+        eprintln!("Problem parsing readings file: {err}");
+        process::exit(1);
+    });
+
+    let results = calc::calculate(&config, &readings);
+
+    println!("{:#?}", results);
+
+    Ok(())
 }
 
 fn read_config_from_file<T: DeserializeOwned>(file_path: String) -> SResult<T> {
@@ -65,18 +78,4 @@ fn read_config_from_file<T: DeserializeOwned>(file_path: String) -> SResult<T> {
     let reader = BufReader::new(file);
     let content = serde_json::from_reader(reader).unwrap();
     Ok(content)
-}
-
-fn print_config(config: &Config) {
-    println!("fixed_charge: {}", config.fixed_charge);
-    println!("fppca_charge: {}", config.fppca_charge);
-    println!("tax: {}", config.tax);
-    println!("energy_unit: {}", config.energy_unit);
-    println!("energy_rate: {}", config.energy_rate);
-}
-
-fn print_reading(config: &Readings) {
-    println!("dinesh_reading: {}", config.dinesh_reading);
-    println!("sachin_reading: {}", config.sachin_reading);
-    println!("sankit_reading: {}", config.sankit_reading);
 }
