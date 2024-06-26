@@ -19,9 +19,9 @@ pub fn calculate(config: &Config, readings: &Readings) -> Result<Bill, &'static 
     non_energy_changes += (non_ac_unit * config.energy_rate) / 4.0;
 
     let result = Bill {
-        dinesh_bill: round_to_decimals(non_energy_changes + dinesh_usage * config.energy_rate, 2),
-        sachin_bill: round_to_decimals(non_energy_changes + sachin_usage * config.energy_rate, 2),
-        sankit_bill: round_to_decimals(non_energy_changes + sankit_usage * config.energy_rate, 2),
+        dinesh_bill: round_to_decimals(non_energy_changes + dinesh_usage * config.energy_rate, 1),
+        sachin_bill: round_to_decimals(non_energy_changes + sachin_usage * config.energy_rate, 1),
+        sankit_bill: round_to_decimals(non_energy_changes + sankit_usage * config.energy_rate, 1),
         kaniska_bill: round_to_decimals(non_energy_changes, 2)
     };
 
