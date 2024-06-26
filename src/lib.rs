@@ -1,7 +1,9 @@
 use serde::Deserialize;
+use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::fs::File;
 use std::io::BufReader;
+use std::io::Write;
 use serde_json::Result as SResult;
 use std::error::Error;
 use std::process;
@@ -19,7 +21,7 @@ pub struct Config {
     pub sankit_cr: f32
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Readings {
     pub dinesh_reading: f32,
     pub sachin_reading: f32,
@@ -52,7 +54,7 @@ impl Config {
     }
 }
 
-pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
+pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let readings_file_path = "reading.json".to_string();
     let readings = match read_config_from_file(readings_file_path) {
         Ok(output) => {
@@ -61,7 +63,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
         Err(_e) => Err("Error reading json file"),
     };
     
-    let readings = readings.unwrap_or_else(|err| {
+    let mut readings = readings.unwrap_or_else(|err| {
         eprintln!("Problem parsing readings file: {err}");
         process::exit(1);
     });
@@ -69,6 +71,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
     let results = calc::calculate(&config, &readings);
 
     println!("{:#?}", results);
+    let _ = write_json_to_file("reading.json".to_string(), &mut readings, &config);
 
     Ok(())
 }
@@ -78,4 +81,16 @@ fn read_config_from_file<T: DeserializeOwned>(file_path: String) -> SResult<T> {
     let reader = BufReader::new(file);
     let content = serde_json::from_reader(reader).unwrap();
     Ok(content)
+}
+
+fn write_json_to_file(file_path: String, content: &mut Readings, config: &Config) -> Result<(), Box<dyn Error>> {
+    content.dinesh_reading = config.dinesh_cr;
+    content.sankit_reading = config.sankit_cr;
+    content.sachin_reading = config.sachin_cr;
+
+    let updated_data = serde_json::to_string_pretty(&content)?;
+    let mut file = File::create(file_path)?;
+    file.write_all(updated_data.as_bytes())?;
+
+    Ok(())
 }

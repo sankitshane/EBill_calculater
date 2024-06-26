@@ -22,7 +22,7 @@ pub fn calculate(config: &Config, readings: &Readings) -> Result<Bill, &'static 
         dinesh_bill: round_to_decimals(non_energy_changes + dinesh_usage * config.energy_rate, 1),
         sachin_bill: round_to_decimals(non_energy_changes + sachin_usage * config.energy_rate, 1),
         sankit_bill: round_to_decimals(non_energy_changes + sankit_usage * config.energy_rate, 1),
-        kaniska_bill: round_to_decimals(non_energy_changes, 2)
+        kaniska_bill: round_to_decimals(non_energy_changes, 1)
     };
 
     Ok(result)
@@ -52,10 +52,10 @@ mod test {
         };
 
         let result = Bill {
-            dinesh_bill: 1623.65,
-            sachin_bill: 1771.15,
-            sankit_bill: 1930.45,
-            kaniska_bill: 1594.15
+            dinesh_bill: 1623.6,
+            sachin_bill: 1771.1,
+            sankit_bill: 1930.4,
+            kaniska_bill: 1594.1
         };
 
         assert_eq!(result, calculate(&config, &reading).expect("value returns False"));
